@@ -59,7 +59,7 @@ extern "C-unwind" fn send_event(app: &NSApplication, sel: Sel, event: &NSEvent) 
 /// See the following links for more info on method swizzling:
 /// - <https://nshipster.com/method-swizzling/>
 /// - <https://spin.atomicobject.com/method-swizzling-objective-c/>
-/// - <https://web.archive.org/web/20130308110627/http://cocoadev.com/wiki/MethodSwizzling>
+/// - <https://web.archive.org/web/2013030.100627/http://cocoadev.com/wiki/MethodSwizzling>
 ///
 /// NOTE: This function assumes that the passed in application object is the one returned from
 /// [`NSApplication::sharedApplication`], i.e. the one and only global shared application object.
@@ -110,28 +110,32 @@ fn maybe_dispatch_device_event(app_state: &Rc<AppState>, event: &NSEvent) {
 
             if delta_x != 0.0 || delta_y != 0.0 {
                 app_state.maybe_queue_with_handler(move |app, event_loop| {
-                    app.device_event(event_loop, None, DeviceEvent::PointerMotion {
-                        delta: (delta_x, delta_y),
-                    });
+                    app.device_event(
+                        event_loop,
+                        None,
+                        DeviceEvent::PointerMotion { delta: (delta_x, delta_y) },
+                    );
                 });
             }
         },
         NSEventType::LeftMouseDown | NSEventType::RightMouseDown | NSEventType::OtherMouseDown => {
             let button = unsafe { event.buttonNumber() } as u32;
             app_state.maybe_queue_with_handler(move |app, event_loop| {
-                app.device_event(event_loop, None, DeviceEvent::Button {
-                    button,
-                    state: ElementState::Pressed,
-                });
+                app.device_event(
+                    event_loop,
+                    None,
+                    DeviceEvent::Button { button, state: ElementState::Pressed },
+                );
             });
         },
         NSEventType::LeftMouseUp | NSEventType::RightMouseUp | NSEventType::OtherMouseUp => {
             let button = unsafe { event.buttonNumber() } as u32;
             app_state.maybe_queue_with_handler(move |app, event_loop| {
-                app.device_event(event_loop, None, DeviceEvent::Button {
-                    button,
-                    state: ElementState::Released,
-                });
+                app.device_event(
+                    event_loop,
+                    None,
+                    DeviceEvent::Button { button, state: ElementState::Released },
+                );
             });
         },
         _ => (),
